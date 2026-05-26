@@ -3,6 +3,10 @@ import { MongoClient } from "mongodb";
 import cors from "cors";
 
 //Importar archivos endpoints
+import usuarios from './usuarios.js'
+import publicaciones from './publicaciones.js'
+import contacto from './contacto.js'
+import chat from './chat.js'
 
 const app = express()
 
@@ -11,6 +15,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //Rutas de archivos
+app.use('/usurios', usuarios);
+app.use('/publicaciones', publicaciones);
+app.use('/contacto', contacto);
+app.use('/chat', chat);
+
 
 app.listen(process.env.PORT || 3000);
 
