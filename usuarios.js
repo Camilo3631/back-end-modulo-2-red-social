@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 const router = Router();
-
+ const usuarios = db.collection("usuarios");
 
 
 router.post("/register"), async (req, res) => {
@@ -29,9 +29,17 @@ let client;
       return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres." });
     }
 
-
-
-
+// -- 5. Comprobar si el email ya existe --
+    const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
+    if (emailExistente) {
+      return res.status(409).json({ message: "Ya existe una cuenta con ese correo electrónico." });
+    }
+ 
+    // -- 6. Comprobar si el username ya existe --
+    const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
+    if (usernameExistente) {
+      return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
+    }
 
 
 
