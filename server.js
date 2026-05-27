@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //Rutas de archivos
-app.use('/usurios', usuarios);
+app.use('/usuarios', usuarios);
 app.use('/publicaciones', publicaciones);
 app.use('/contacto', contacto);
 app.use('/chat', chat);
