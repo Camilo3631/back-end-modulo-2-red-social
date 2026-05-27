@@ -1,6 +1,7 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import cors from "cors";
+import bcrypt from "bcrypt"
 
 //Importar archivos endpoints
 import usuarios from './usuarios.js'

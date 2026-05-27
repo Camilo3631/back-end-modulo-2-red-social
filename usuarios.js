@@ -1,35 +1,45 @@
 import { Router } from "express";
 
 const router = Router();
-
-import express from "express";
-import { MongoClient } from "mongodb";
-import cors from "cors";
+ const usuarios = db.collection("usuarios");
 
 
-const app = express()
+router.post("/register"), async (req, res) => {
+const { name, surname, email, username, password } = req.body;}
+let client;
 
-app.use(cors());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+    if (!name || !surname || !email || !username || !password) {
+      return res.status(400).json({ message: "Todos los campos son obligatorios." })}
+    
+ // -- 2. Validar formato de email --
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Formato de correo inválido." });
+    }
+ 
+    // -- 3. Validar formato de username --
+    if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
+      return res.status(400).json({
+        message: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.",
+      });
+    }
+ 
+    // -- 4. Validar longitud mínima de contraseña --
+    if (password.length < 8) {
+      return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres." });
+    }
 
-
-const url= `mongodb+srv://karlaperezn96_db_user:EnUnLugar...@cluster0.84ay04h.mongodb.net/?appName=Cluster0`;
-const client = await MongoClient.connect(url);
-app.locals.db = client.db("social")
-
-//router.post("/register"), async (req, res) => {
-  //const { name, surname, email, username, password } = req.body;}
-  //let client;
-
-
-
-
-
-
-
-
-
+// -- 5. Comprobar si el email ya existe --
+    const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
+    if (emailExistente) {
+      return res.status(409).json({ message: "Ya existe una cuenta con ese correo electrónico." });
+    }
+ 
+    // -- 6. Comprobar si el username ya existe --
+    const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
+    if (usernameExistente) {
+      return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
+    }
 
 
 
