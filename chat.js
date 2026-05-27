@@ -19,10 +19,10 @@ router.get('/mensajes', async (req, res) => {
 })
 
 //Registar chats
-router.post('/ ', async (req, res) => {
+router.post('/registrar-chats ', async (req, res) => {
 
 
-    
+
 })
 
 
