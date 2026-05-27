@@ -1,14 +1,17 @@
 import { Router } from "express";
 
 const router = Router();
- const usuarios = db.collection("usuarios");
+const usuarios = req.app.locals.db.collection("usuarios");
 
 
 router.post("/register"), async (req, res) => {
-const { name, surname, email, username, password } = req.body;}
-let client;
+const { email, username, password } = req.body;
 
-    if (!name || !surname || !email || !username || !password) {
+let client;
+const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
+const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
+
+    if (!username || !email || !password) {
       return res.status(400).json({ message: "Todos los campos son obligatorios." })}
     
  // -- 2. Validar formato de email --
@@ -30,16 +33,20 @@ let client;
     }
 
 // -- 5. Comprobar si el email ya existe --
-    const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
     if (emailExistente) {
       return res.status(409).json({ message: "Ya existe una cuenta con ese correo electrónico." });
     }
- 
     // -- 6. Comprobar si el username ya existe --
-    const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
     if (usernameExistente) {
       return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
+
+
+
     }
+
+
+
+}
 
 
 
