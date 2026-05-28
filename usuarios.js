@@ -4,7 +4,7 @@ const router = Router();
 const usuarios = req.app.locals.db.collection("usuarios");
 
 
-router.post("/register"), async (req, res) => {
+router.post("/registrar"), async (req, res) => {
 const { email, username, password } = req.body;
 
 let client;
@@ -48,6 +48,18 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
 
 }
 
+//--Buscador usuarios--
+
+router.post("/buscar", async (req, res) => {
+  const buscaruser = await req.app.locals.db
+    .collection("usuarios")
+    .find({username:{
+      $regex: req.body.name,
+      $options: "i"
+    }})
+    .toArray();
+  res.send({ data: buscaruser });
+});
 
 
 
