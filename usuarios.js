@@ -39,10 +39,23 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
     // -- 6. Comprobar si el username ya existe --
     if (usernameExistente) {
       return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
-
-
-
     }
+    // -- Cifrar contraseña --
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+     // -- Insertar usuario --
+    const nuevoUsuario = {
+      email: email.toLowerCase().trim(),
+      username: username.toLowerCase().trim(),
+      password: hashedPassword,
+      profilePicture: null,
+      followers: [],
+      following: [],
+      createdAt: new Date(),
+    };
+ 
+    const result = await users.insertOne(nuevoUsuario);
 
 
 
@@ -51,14 +64,14 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
 //--Buscador usuarios--
 
 router.post("/buscar", async (req, res) => {
-  const buscaruser = await req.app.locals.db
+  const buscarUser = await req.app.locals.db
     .collection("usuarios")
     .find({username:{
       $regex: req.body.name,
       $options: "i"
     }})
     .toArray();
-  res.send({ data: buscaruser });
+  res.send({ data: buscarUser });
 });
 
 
