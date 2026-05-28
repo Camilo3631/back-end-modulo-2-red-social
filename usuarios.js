@@ -10,7 +10,6 @@ router.post("/registrar", async (req, res) => {
   const contrasena = datosUsuario.contrasena;
   let mensaje;
 
-
   //Cifrar contraseña
   const saltRounds = 12;
   const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
@@ -18,12 +17,12 @@ router.post("/registrar", async (req, res) => {
   //Buscar username existe
   const usernameExiste = await req.app.locals.db.collection("usuarios").findOne({username})
   if (usernameExiste) {
-    res.status(409).json({ mensaje: "Ese nombre de usuario ya está en uso." });
+    mensaje: "Ese nombre de usuario ya está en uso."
   }
   //Buscar usuario por email existe
   const emailExiste = await req.app.locals.db.collection("usuarios").findOne({email});
   if (emailExiste) {
-    res.status(409).json({ mensaje: "Ya existe una cuenta con ese correo electrónico." });
+    mensaje: "Ya existe una cuenta con ese correo electrónico."
   }
 
 
@@ -35,11 +34,11 @@ router.post("/registrar", async (req, res) => {
   //formato de email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    res.status(400).json({ mensaje: "Formato de correo inválido." });
+    mensaje: "Formato de correo inválido."
   }
   //formato de username
   if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
-    res.status(400).json({ mensaje: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo." });
+    mensaje: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo."
   }
 
   //Agregar usuario
@@ -48,7 +47,41 @@ router.post("/registrar", async (req, res) => {
   res.send({data: nuevoUsuario})
 });
 
-//--Buscador usuarios--
+
+
+
+
+
+
+router.post("/login"), async (req, res) => {
+  const { identifier, password } = req.body;
+
+if (!identifier || !password) {
+    return res.status(400).json({ message: "Correo/usuario y contraseña son obligatorios." });
+  }
+
+// -- Buscar por email o username --
+    const user = await usuarios.findOne({
+      $or: [
+        { email: identifier.toLowerCase() },
+        { username: identifier.toLowerCase() },
+      ],
+    });
+ 
+    if (!user) {
+      return res.status(401).json({ message: "Usuario incorrecto." });
+    }
+
+    // -- Comparar contraseña cifrada --
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Contraseña incorrecta." });
+    }
+  }
+
+
+
+//--BUSCADOR USUARIOS--
 
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
@@ -64,5 +97,3 @@ router.post("/buscar", async (req, res) => {
 });
 
 export default router;
-
-//////////////////////////////////
