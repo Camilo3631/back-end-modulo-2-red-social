@@ -7,7 +7,7 @@ const usuarios = req.app.locals.db.collection("usuarios");
 router.post("/registrar"), async (req, res) => {
 const { email, username, password } = req.body;
 
-let client;
+
 const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
 const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
 
@@ -40,26 +40,25 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
     if (usernameExistente) {
       return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
     }
-    // -- Cifrar contraseña --
+    // --7. Cifrar contraseña --
     const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const contraseñaCifrada = await bcrypt.hash(password, saltRounds);
 
-     // -- Insertar usuario --
+     // --8. Insertar usuario --
     const nuevoUsuario = {
       email: email.toLowerCase().trim(),
       username: username.toLowerCase().trim(),
-      password: hashedPassword,
+      password: contraseñaCifrada,
       profilePicture: null,
       followers: [],
       following: [],
       createdAt: new Date(),
     };
  
-    const result = await users.insertOne(nuevoUsuario);
-
-
-
+    const result = await usuarios.insertOne(nuevoUsuario);
 }
+
+
 
 //--Buscador usuarios--
 
