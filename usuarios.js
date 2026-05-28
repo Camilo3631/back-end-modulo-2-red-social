@@ -14,10 +14,10 @@ const router = Router();
 
 
 // Modificar cuenta 
-router.put('/modificar-cuenta', async (req, res ) => {
+router.put('/modificar-cuenta/:id', async (req, res ) => {
     try {
       
-        const userId = req.user.id;
+        const userId = req.params.id
 
         const { nombre, apellido, usuario, contraseña} = req.body;
 
@@ -37,7 +37,7 @@ router.put('/modificar-cuenta', async (req, res ) => {
         if (usuario) datosActualizados.usuario= usuario;
         if (contraseña) datosActualizados.contraseña = contraseña;
 
-        const result = await req.app.db.collection('usuario').updateOne(
+        const result = await req.app.locals.db.collection('usuario').updateOne(
             { _id: new ObjectId(userId) },
             { $set: datosActualizados }
         );
@@ -56,10 +56,13 @@ router.put('/modificar-cuenta', async (req, res ) => {
 
 
 // Eliminar cuenta
-router.delete('/eliminar-cuenta', async (req, res) => {
+router.delete('/eliminar-cuenta/:id', async (req, res) => {
     try {
-        const eliminar = await req.app.db.collection('usuario').deleteOne(
-            { _id: new ObjectId(req.user.id)}   
+
+        const userId = req.params.id
+
+        const eliminar = await req.app.locals.db.collection('usuario').deleteOne(
+            {_id: new ObjectId(userId)}   
         );
 
         res.json({ message: 'Cuenta eliminada', eliminar});
