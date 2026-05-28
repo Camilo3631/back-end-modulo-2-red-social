@@ -40,15 +40,15 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
     if (usernameExistente) {
       return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
     }
-    // -- Cifrar contraseña --
+    // --7. Cifrar contraseña --
     const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const contraseñaCifrada = await bcrypt.hash(password, saltRounds);
 
-     // -- Insertar usuario --
+     // --8. Insertar usuario --
     const nuevoUsuario = {
       email: email.toLowerCase().trim(),
       username: username.toLowerCase().trim(),
-      password: hashedPassword,
+      password: contraseñaCifrada,
       profilePicture: null,
       createdAt: new Date(),
     };
@@ -56,8 +56,9 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
     const result = await usuarios.insertOne(nuevoUsuario);
 
 
-
 }
+
+
 
 //--Buscador usuarios--
 
