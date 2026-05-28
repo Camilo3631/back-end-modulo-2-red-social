@@ -1,10 +1,14 @@
 import { Router } from "express";
 
 const router = Router();
+// Esta Línea debe de ir dentro del ndpoint
+//const usuarios = req.app.locals.db.collection("usuarios");
+
+
+router.post("/registrar", async (req, res) => {
+
 const usuarios = req.app.locals.db.collection("usuarios");
 
-
-router.post("/registrar"), async (req, res) => {
 const { email, username, password } = req.body;
 
 let client;
@@ -59,7 +63,7 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
 
 
 
-}
+})
 
 //--Buscador usuarios--
 
