@@ -3,12 +3,18 @@ import bcrypt from "bcrypt";
 
 const router = Router();
 
+router.get("/", async (req, res) =>{
+  const usuarios = await req.app.locals.db.collection("usuarios").find().toArray()
+
+  res.send({data: usuarios})
+})
+
 router.post("/registrar", async (req, res) => {
   const datosUsuario = req.body;
   const username = (datosUsuario.username);
   const email = (datosUsuario.email);
   const contrasena = datosUsuario.contrasena;
-  let mensaje= ""
+  let mensaje = ""
   let nuevoUsuario
 
   //Verificaciones
