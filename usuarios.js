@@ -7,7 +7,7 @@ const usuarios = req.app.locals.db.collection("usuarios");
 router.post("/registrar"), async (req, res) => {
 const { email, username, password } = req.body;
 
-let client;
+
 const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
 const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
 
@@ -50,12 +50,10 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
       username: username.toLowerCase().trim(),
       password: hashedPassword,
       profilePicture: null,
-      followers: [],
-      following: [],
       createdAt: new Date(),
     };
  
-    const result = await users.insertOne(nuevoUsuario);
+    const result = await usuarios.insertOne(nuevoUsuario);
 
 
 
