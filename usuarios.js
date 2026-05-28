@@ -67,6 +67,16 @@ console.log(emailExiste)
 
 
 
+//Iniciar sesion
+  router.post("/iniciar-sesion", async (req, res) =>{
+    const datosUsuario = req.body;
+
+    const usuarioExiste = await req.app.locals.db.collection("usuarios").findOne(datosUsuario)
+
+    let estado = usuarioExiste ? true : false 
+
+    res.send({data: usuarioExiste, estado: estado})
+  })
 
 
 
