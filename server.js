@@ -1,7 +1,6 @@
 import express from "express";
 import { MongoClient } from "mongodb";
 import cors from "cors";
-import bcrypt from "bcrypt"
 
 //Importar archivos endpoints
 import usuarios from './usuarios.js'
@@ -16,7 +15,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //Rutas de archivos
-app.use('/usurios', usuarios);
+app.use('/usuarios', usuarios);
 app.use('/publicaciones', publicaciones);
 app.use('/contacto', contacto);
 app.use('/chat', chat);

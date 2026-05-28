@@ -1,79 +1,68 @@
 import { Router } from "express";
+import bcrypt from "bcrypt";
 
 const router = Router();
-const usuarios = req.app.locals.db.collection("usuarios");
+
+router.post("/registrar", async (req, res) => {
+  const datosUsuario = req.body;
+  const username = (datosUsuario.username).toLowerCase().trim();
+  const email = (datosUsuario.email).toLowerCase().trim();
+  const contrasena = datosUsuario.contrasena;
+  let mensaje;
 
 
-router.post("/registrar"), async (req, res) => {
-const { email, username, password } = req.body;
+  //Cifrar contraseña
+  const saltRounds = 12;
+  const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
+
+  //Buscar username existe
+  const usernameExiste = await req.app.locals.db.collection("usuarios").findOne({username})
+  if (usernameExiste) {
+    res.status(409).json({ mensaje: "Ese nombre de usuario ya está en uso." });
+  }
+  //Buscar usuario por email existe
+  const emailExiste = await req.app.locals.db.collection("usuarios").findOne({email});
+  if (emailExiste) {
+    res.status(409).json({ mensaje: "Ya existe una cuenta con ese correo electrónico." });
+  }
 
 
-const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
-const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
+  //Verificaciones
+  //Campos obligados
+  if (!username || !email || !contrasena) {
+    res.status(400).json({ mensaje: "Todos los campos son obligatorios." });
+  }
+  //formato de email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    res.status(400).json({ mensaje: "Formato de correo inválido." });
+  }
+  //formato de username
+  if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
+    res.status(400).json({ mensaje: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo." });
+  }
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "Todos los campos son obligatorios." })}
-    
- // -- 2. Validar formato de email --
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Formato de correo inválido." });
-    }
- 
-    // -- 3. Validar formato de username --
-    if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
-      return res.status(400).json({
-        message: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.",
-      });
-    }
- 
-    // -- 4. Validar longitud mínima de contraseña --
-    if (password.length < 8) {
-      return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres." });
-    }
+  //Agregar usuario
+  const nuevoUsuario = await req.app.locals.db.collection("usuarios").insertOne(datosUsuario)
 
-// -- 5. Comprobar si el email ya existe --
-    if (emailExistente) {
-      return res.status(409).json({ message: "Ya existe una cuenta con ese correo electrónico." });
-    }
-    // -- 6. Comprobar si el username ya existe --
-    if (usernameExistente) {
-      return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
-    }
-    // --7. Cifrar contraseña --
-    const saltRounds = 12;
-    const contraseñaCifrada = await bcrypt.hash(password, saltRounds);
-
-     // --8. Insertar usuario --
-    const nuevoUsuario = {
-      email: email.toLowerCase().trim(),
-      username: username.toLowerCase().trim(),
-      password: contraseñaCifrada,
-      profilePicture: null,
-      createdAt: new Date(),
-    };
- 
-    const result = await usuarios.insertOne(nuevoUsuario);
-
-
-}
-
-
+  res.send({data: nuevoUsuario})
+});
 
 //--Buscador usuarios--
 
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
     .collection("usuarios")
-    .find({username:{
-      $regex: req.body.name,
-      $options: "i"
-    }})
+    .find({
+      username: {
+        $regex: req.body.name,
+        $options: "i",
+      },
+    })
     .toArray();
   res.send({ data: buscarUser });
 });
 
-
-
-
 export default router;
+
+//////////////////////////////////
