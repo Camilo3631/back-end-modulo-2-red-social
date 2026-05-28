@@ -3,7 +3,7 @@ import { Router } from "express";
 const router = Router();
 const usuarios = req.app.locals.db.collection("usuarios");
 
-
+//--REGISTRO--
 router.post("/registrar"), async (req, res) => {
 const { email, username, password } = req.body;
 
@@ -54,13 +54,46 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
     };
  
     const result = await usuarios.insertOne(nuevoUsuario);
-
-
 }
 
 
+//--INICIO SESION--
 
-//--Buscador usuarios--
+/**
+ * Body esperado:
+ * {
+ *   identifier: string  (correo o nombre de usuario)
+ *   password:   string
+ * }
+ */
+
+router.post("/login"), async (req, res) => {
+  const { identifier, password } = req.body;
+
+if (!identifier || !password) {
+    return res.status(400).json({ message: "Correo/usuario y contraseña son obligatorios." });
+  }
+
+// -- Buscar por email o username --
+    const user = await usuarios.findOne({
+      $or: [
+        { email: identifier.toLowerCase() },
+        { username: identifier.toLowerCase() },
+      ],
+    });
+ 
+    if (!user) {
+      return res.status(401).json({ message: "Usuario incorrecto." });
+    }
+
+    // -- Comparar contraseña cifrada --
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Contraseña incorrecta." });
+    }
+
+
+//--BUSCADOR USUARIOS--
 
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
