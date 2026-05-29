@@ -36,13 +36,13 @@ router.post("/registrar", async (req, res) => {
   const saltRounds = 12;
   const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
 
-console.log(username)
-  //Buscar username existe
+
+  //Buscar existencia de username y/o email
   const usernameExiste = await req.app.locals.db.collection("usuarios").findOne({username})
   console.log(usernameExiste)
-  //Buscar usuario por email existe
   const emailExiste = await req.app.locals.db.collection("usuarios").findOne({email});
-console.log(emailExiste)
+
+
   //Username e email existe 
   if (usernameExiste && emailExiste) {
     mensaje = "Ese nombre de usuario está en uso y ya existe una cuenta con ese correo electrónico."
@@ -70,58 +70,72 @@ console.log(emailExiste)
 //Iniciar sesion
   router.post("/iniciar-sesion", async (req, res) =>{
     const datosUsuario = req.body;
+    let mensaje;
+    let emailExiste;
+    let estado;
+    const passwordMatch = await bcrypt.compare(datosUsuario.contrasena, );
 
-    const usuarioExiste = await req.app.locals.db.collection("usuarios").findOne(datosUsuario)
+    if (!datosUsuario.email || !datosUsuario.contrasena) {
+      mensaje: "Correo/usuario y contraseña son obligatorios.";
+      estado = null
+    }
 
-    let estado = usuarioExiste ? true : false 
+    if (!datosUsuario.email || !datosUsuario.contrasena) {
+      emailExiste = await req.app.locals.db.collection("usuarios").findOne(datosUsuario)
+      emailExiste ? estado = true : estado = false
 
-    res.send({data: usuarioExiste, estado: estado})
+      if (!passwordMatch) {
+        message = "Contraseña incorrecta.";
+      }
+
+
+    }
+
+    res.send({data: usuarioExiste, estado: estado, mensaje: mensaje})
   })
 
 
+  
+  //--BUSCADOR USUARIOS--
+  
+  router.post("/buscar", async (req, res) => {
+    const buscarUser = await req.app.locals.db
+    .collection("usuarios")
+    .find({
+      username: {
+        $regex: req.body.name,
+        $options: "i",
+      },
+    })
+    .toArray();
+    res.send({ data: buscarUser });
+  });
+  
+  export default router;
 
 
-// router.post("/login"), async (req, res) => {
-//   const { identifier, password } = req.body;
-
-// if (!identifier || !password) {
-//     return res.status(400).json({ message: "Correo/usuario y contraseña son obligatorios." });
-//   }
-
-// // -- Buscar por email o username --
-//     const user = await usuarios.findOne({
-//       $or: [
-//         { email: identifier.toLowerCase() },
-//         { username: identifier.toLowerCase() },
-//       ],
-//     });
- 
-//     if (!user) {
-//       return res.status(401).json({ message: "Usuario incorrecto." });
-//     }
-
-//     // -- Comparar contraseña cifrada --
-//     const passwordMatch = await bcrypt.compare(password, user.password);
-//     if (!passwordMatch) {
-//       return res.status(401).json({ message: "Contraseña incorrecta." });
-//     }
-//   }
-
-
-
-//--BUSCADOR USUARIOS--
-
-// router.post("/buscar", async (req, res) => {
-//   const buscarUser = await req.app.locals.db
-//     .collection("usuarios")
-//     .find({
-//       username: {
-//         $regex: req.body.name,
-//         $options: "i",
-//       },
-//     })
-//     .toArray();
-//   res.send({ data: buscarUser });
-// });
-
-export default router;
+  // router.post("/login"), async (req, res) => {
+  //   const { identifier, password } = req.body;
+  
+  // if (!identifier || !password) {
+  //     return res.status(400).json({ message: "Correo/usuario y contraseña son obligatorios." });
+  //   }
+  
+  // // -- Buscar por email o username --
+  //     const user = await usuarios.findOne({
+  //       $or: [
+  //         { email: identifier.toLowerCase() },
+  //         { username: identifier.toLowerCase() },
+  //       ],
+  //     });
+   
+  //     if (!user) {
+  //       return res.status(401).json({ message: "Usuario incorrecto." });
+  //     }
+  
+      // -- Comparar contraseña cifrada --
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ message: "Contraseña incorrecta." });
+      }
+  //   }
