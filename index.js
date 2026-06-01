@@ -20,8 +20,8 @@ app.use(express.json());
 //Rutas de archivos
 app.use('/usuarios', usuarios);
 app.use('/publicaciones', publicaciones);
-app.use('/contacto', contacto);
-app.use('/chat', chat);
+app.use('/contactos', contacto);
+app.use('/chats', chat);
 
 
 app.listen(process.env.PORT || 3000);

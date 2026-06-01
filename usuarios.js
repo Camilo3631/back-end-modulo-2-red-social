@@ -1,18 +1,17 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
+// propiesta
+import { ObjectId } from "mongodb";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
-  const usuarios = await req.app.locals.db
-    .collection("usuarios")
-    .find()
-    .toArray();
 
-  res.send({ data: usuarios });
-});
 
-///////////////////////////////////////////////////////////
+router.post("/registrar", async (req, res) => {
+
+const usuarios = req.app.locals.db.collection("usuarios");
+
+const { email, username, password } = req.body;
+
 
 router.post("/registrar", async (req, res) => {
 
@@ -95,7 +94,7 @@ router.post("/registrar", async (req, res) => {
 
 });
 
-///////////////////////////////////////////////////////////
+
 
 //Iniciar sesion
 router.post("/iniciar-sesion", async (req, res) => {
@@ -131,10 +130,11 @@ router.post("/iniciar-sesion", async (req, res) => {
 });
 
 
-///////////////////////////////////////////////////////////
 
 
-//--BUSCADOR USUARIOS--
+})
+
+// Te va mejor un get que un post para esto porque es una consulta no una creación.
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
     .collection("usuarios")
@@ -147,6 +147,74 @@ router.post("/buscar", async (req, res) => {
     .toArray();
   res.send({ data: buscarUser });
 });
+
+
+
+
+
+
+
+// Modificar cuenta 
+router.put('/modificar-cuenta/:id', async (req, res ) => {
+    try {
+      
+        const userId = req.params.id
+
+        const { nombre, apellido, usuario, contraseña} = req.body;
+
+
+        // Validamos un campo
+        if (!nombre &&  !apellido && !usuario && !contraseña) {
+            return res.status(400).json({
+                message: 'Debes enviar un campo al menos para ser actualizado'
+            });
+        }
+
+        // Se colocan los datos actualizados 
+        const datosActualizados = {};
+ 
+        if (nombre) datosActualizados.nombre = nombre;
+        if (apellido) datosActualizados.apellido = apellido;
+        if (usuario) datosActualizados.usuario= usuario;
+        if (contraseña) datosActualizados.contraseña = contraseña;
+
+        const result = await req.app.locals.db.collection('usuario').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: datosActualizados }
+        );
+
+        res.status(200).json({
+           mensaje: "Ha sido actualizada la cuenta correctamente",
+           result
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            error: 'Error al actualizar la cuenta',
+        })
+    }
+});
+
+
+// Eliminar cuenta
+router.delete('/eliminar-cuenta/:id', async (req, res) => {
+    try {
+
+        const userId = req.params.id
+
+
+        const eliminar = await req.app.locals.db.collection('usuario').deleteOne(
+            {_id: new ObjectId(userId)}   
+        );
+
+        res.json({ message: 'Cuenta eliminada', eliminar});
+     } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar la cuenta' });
+     }
+    
+});
+
+
 
 
 export default router;
