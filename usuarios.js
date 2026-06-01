@@ -6,11 +6,13 @@ const router = Router();
 
 
 
-router.post("/registrar", async (req, res) => {
+router.get("/", async (req, res) => {
 
-const usuarios = req.app.locals.db.collection("usuarios");
+const usuarios = req.app.locals.db.collection("usuarios").find().toArray();
 
-const { email, username, password } = req.body;
+res.send(usuarios)
+
+})
 
 
 router.post("/registrar", async (req, res) => {
@@ -132,7 +134,7 @@ router.post("/iniciar-sesion", async (req, res) => {
 
 
 
-})
+
 
 // Te va mejor un get que un post para esto porque es una consulta no una creación.
 router.post("/buscar", async (req, res) => {
