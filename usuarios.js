@@ -12,55 +12,123 @@ const usuarios = req.app.locals.db.collection("usuarios");
 
 const { email, username, password } = req.body;
 
-let client;
-const emailExistente = await usuarios.findOne({ email: email.toLowerCase() });
-const usernameExistente = await usuarios.findOne({ username: username.toLowerCase() });
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: "Todos los campos son obligatorios." })}
-    
- // -- 2. Validar formato de email --
+router.post("/registrar", async (req, res) => {
+
+  const datosUsuario = req.body;
+
+  const username = datosUsuario.username;
+  const email = datosUsuario.email;
+  const contrasena = datosUsuario.contrasena;
+
+  let mensaje = "";
+  let nuevoUsuario;
+
+  // Campos obligatorios
+  if (!username || !email || !contrasena) {
+
+    mensaje = "Todos los campos son obligatorios.";
+
+  } else {
+
+    // Formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ message: "Formato de correo inválido." });
-    }
- 
-    // -- 3. Validar formato de username --
-    if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
-      return res.status(400).json({
-        message: "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.",
-      });
-    }
- 
-    // -- 4. Validar longitud mínima de contraseña --
-    if (password.length < 8) {
-      return res.status(400).json({ message: "La contraseña debe tener al menos 8 caracteres." });
+      mensaje = "Formato de correo inválido.";
     }
 
-// -- 5. Comprobar si el email ya existe --
-    if (emailExistente) {
-      return res.status(409).json({ message: "Ya existe una cuenta con ese correo electrónico." });
-    }
-    // -- 6. Comprobar si el username ya existe --
-    if (usernameExistente) {
-      return res.status(409).json({ message: "Ese nombre de usuario ya está en uso." });
-    }
-    // -- Cifrar contraseña --
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Formato username
+    else if (
+      username.length < 3 ||
+      /[^a-zA-Z0-9_]/.test(username)
+    ) {
 
-     // -- Insertar usuario --
-    const nuevoUsuario = {
-      email: email.toLowerCase().trim(),
-      username: username.toLowerCase().trim(),
-      password: hashedPassword,
-      profilePicture: null,
-      followers: [],
-      following: [],
-      createdAt: new Date(),
-    };
- 
-    const result = await users.insertOne(nuevoUsuario);
+      mensaje =
+        "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.";
+
+    } else {
+
+      // Buscar existencia
+      const usernameExiste = await req.app.locals.db
+        .collection("usuarios")
+        .findOne({ username });
+
+      const emailExiste = await req.app.locals.db
+        .collection("usuarios")
+        .findOne({ email });
+
+      if (usernameExiste && emailExiste) {
+        mensaje =
+          "Ese nombre de usuario está en uso y ya existe una cuenta con ese correo electrónico.";
+
+      } else if (usernameExiste) {
+        mensaje = "Ese nombre de usuario está en uso.";
+
+      } else if (emailExiste) {
+        mensaje =
+          "Ya existe una cuenta con ese correo electrónico.";
+
+      } else {
+
+        // Cifrar contraseña
+        const saltRounds = 12;
+        const contrasenaCifrada =
+          await bcrypt.hash(contrasena, saltRounds);
+          
+        //Registrar usuario
+        nuevoUsuario = await req.app.locals.db
+          .collection("usuarios")
+          .insertOne({
+            username,
+            email,
+            contrasena: contrasenaCifrada
+          });
+
+        mensaje = "Usuario registrado";
+      }
+    }
+  }
+
+  res.send({data: nuevoUsuario, mensaje});
+
+});
+
+
+
+//Iniciar sesion
+router.post("/iniciar-sesion", async (req, res) => {
+  const datosUsuario = req.body;
+  console.log(datosUsuario);
+  let mensaje;
+  let estado;
+
+  let usuarioVerificado = await req.app.locals.db
+    .collection("usuarios")
+    .findOne({ email: datosUsuario.email });
+  console.log(usuarioVerificado);
+
+  if (!datosUsuario.email || !datosUsuario.contrasena) {
+    mensaje = "Email y contraseña son obligatorios para iniciar sesión.";
+    estado = false;
+  } else {
+    const passwordMatch = usuarioVerificado
+      ? await bcrypt.compare(
+          datosUsuario.contrasena,
+          usuarioVerificado.contrasena,
+        )
+      : false;
+    console.log(passwordMatch);
+
+    ({ estado, mensaje } =
+      usuarioVerificado && passwordMatch
+        ? { estado: true, mensaje: "Usuario verificado" }
+        : { estado: false, mensaje: "Credenciales incorrectas" });
+  }
+
+  res.send({ estado, mensaje });
+});
+
 
 
 
@@ -70,13 +138,16 @@ const usernameExistente = await usuarios.findOne({ username: username.toLowerCas
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
     .collection("usuarios")
-    .find({username:{
-      $regex: req.body.name,
-      $options: "i"
-    }})
+    .find({
+      username: {
+        $regex: req.body.name,
+        $options: "i",
+      },
+    })
     .toArray();
   res.send({ data: buscarUser });
 });
+
 
 
 
@@ -142,6 +213,7 @@ router.delete('/eliminar-cuenta/:id', async (req, res) => {
      }
     
 });
+
 
 
 
