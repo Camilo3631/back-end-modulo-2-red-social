@@ -1,4 +1,5 @@
 import { Router } from "express";
+import bcrypt from "bcrypt"
 // propiesta
 import { ObjectId } from "mongodb";
 
