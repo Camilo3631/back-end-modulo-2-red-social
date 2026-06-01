@@ -18,7 +18,7 @@ app.use(express.json());
 app.use('/usuarios', usuarios);
 app.use('/publicaciones', publicaciones);
 app.use('/contactos', contacto);
-app.use('/chat', chat);
+app.use('/chats', chat);
 
 
 app.listen(process.env.PORT || 3000);
