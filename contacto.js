@@ -6,12 +6,12 @@ const router = Router();
 
 // Todos los contactos
 router.get('/', async (req, res) => {
+    //const idUsuario = ;
     try {
 
         const contactos = await req.app.locals.db
           .collection('contactos')
-          .find()
-          .toArray()
+          .findOne({_id: idUsuario})
 
           res.json(contactos)   
 

@@ -129,7 +129,7 @@ router.post("/iniciar-sesion", async (req, res) => {
         : { estado: false, mensaje: "Credenciales incorrectas" });
   }
 
-  res.send({ estado, mensaje });
+  res.send({ estado, mensaje, usuarioVerificado });
 });
 
 
