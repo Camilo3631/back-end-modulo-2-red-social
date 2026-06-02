@@ -9,7 +9,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
 
-const usuarios = req.app.locals.db.collection("usuarios").find().toArray();
+const usuarios = await req.app.locals.db.collection("usuarios").find().toArray();
 
 res.send(usuarios)
 
