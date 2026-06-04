@@ -143,7 +143,7 @@ router.post("/buscar", async (req, res) => {
     .collection("usuarios")
     .find({
       username: {
-        $regex: req.body.name,
+        $regex: req.body.username,
         $options: "i",
       },
     })
