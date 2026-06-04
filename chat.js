@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const router = Router();
 
-//Mostrar los chats
+//Mostrar los mensaje
 router.get('/', async (req, res) => {
 
     const chats = await req.app.locals.db.collection("chats").find().toArray();
@@ -10,33 +10,13 @@ router.get('/', async (req, res) => {
     res.json(chats);
 })
 
-//Mostrar los mensajes
-router.get('/mensajes', async (req, res) => {
+//Registrar mensaje
+router.get('/registrar', async (req, res) => {
     
 
-    res.json(mensajes)
+    res.json()
 
 })
-
-//Registar chats
-router.post('/registrar-chats ', async (req, res) => {
-
-
-
-})
-
-
-
-
-
-router.delete('/eliminar-chat', async (req, res) => {
-
-})
-
-
-
-
-
 
 
 
