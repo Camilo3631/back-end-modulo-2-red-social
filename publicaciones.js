@@ -2,8 +2,18 @@ import { Router } from "express";
 
 const router = Router();
 
-//Mostrar publicaciones
-router.get("/", async (req, res) => {
+//Mostrar publicaciones del usuario / Pantalla de perfil
+router.get("/:username", async (req, res) => {
+  const username = req.params.username;
+  const publicaciones = await req.app.locals.db
+    .collection("publicaciones")
+    .find()
+    .toArray();
+  res.send({ data: publicaciones });
+});
+
+//Mostrar todas las publicaciones (home)
+router.get("/todas", async (req, res) => {
   const publicaciones = await req.app.locals.db
     .collection("publicaciones")
     .find()
