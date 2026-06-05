@@ -5,7 +5,7 @@ const router = Router();
 //Mostrar los mensaje
 router.get("/", async (req, res) => {
   try {
-    const chats = await req.app.locals.db.collection("chats").find().toArray();
+    const chats = await req.app.locals.db.collection("chat").find().toArray();
 
     res.json(chats);
   } catch (error) {
@@ -20,8 +20,9 @@ router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
   try {
     const { userLog, userConct } = req.params;
 
+    console.log(userLog, userConct)
     const mensajes = await req.app.locals.db
-      .collection("chats")
+      .collection("chat")
       .find({
         $or: [
           {
@@ -34,10 +35,11 @@ router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
           },
         ],
       })
-      .sort({ fecha: 1 })
       .toArray();
 
     res.json(mensajes);
+
+
   } catch (error) {
     res.status(500).json({
       menssage: "Error al obtener tods los mensajes",
@@ -56,7 +58,7 @@ router.post("/registrar-mensaje", async (req, res) => {
     };
 
     const resultado = await req.app.locals.db
-      .collection("chats")
+      .collection("chat")
       .insertOne(nuevoMensaje);
 
     res.json({
@@ -76,7 +78,7 @@ router.delete("/eliminar-chat", async (req, res) => {
     const { usuario1, usuario2 } = req.body;
 
     const eliminarChat = await req.app.locals.db
-      .collection("chats")
+      .collection("chat")
       .deleteMany({
         $or: [
           {
