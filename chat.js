@@ -35,7 +35,8 @@ router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
           },
         ],
       })
-      .toArray();
+      .toArray()
+      //.sort({fecha: 1});
 
     res.json(mensajes);
 
