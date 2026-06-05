@@ -8,7 +8,7 @@ router.get("/:username", async (req, res) => {
 
   const publicaciones = await req.app.locals.db
     .collection("publicaciones")
-    .find(username)
+    .find({ username: username })
     .toArray();
 
   res.send({ data: publicaciones });
@@ -30,21 +30,25 @@ router.post("/crear-publicacion", async (req, res) => {
 
   const publicacionCreada = await req.app.locals.db
     .collection("publicaciones")
-    .insertOne({username: nuevaPublicacion.username, texto: nuevaPublicacion.texto});
+    .insertOne({
+      username: nuevaPublicacion.username,
+      texto: nuevaPublicacion.texto,
+    });
 
   res.send({ data: publicacionCreada });
 });
 
 //Editar publicacion
 router.put("/editar-publicacion", async (req, res) => {
-    const usuario = req.body.usuario;
-    const fecha = req.body.fecha;
-    const nuevoTexto = req.body.texto;
+  const usuario = req.body.usuario;
+  const fecha = req.body.fecha;
+  const nuevoTexto = req.body.texto;
 
-  const publicacionEditada =
-    await req.app.locals.db.collection("publicaciones").updateOne({usuario}, {$set: {texto: nuevoTexto, fecha: fecha}})
+  const publicacionEditada = await req.app.locals.db
+    .collection("publicaciones")
+    .updateOne({ usuario }, { $set: { texto: nuevoTexto, fecha: fecha } });
 
-    res.send({data: publicacionEditada})
+  res.send({ data: publicacionEditada });
 });
 
 export default router;
