@@ -22,23 +22,23 @@ router.get('/', async (req, res) => {
 });
 
 //Mostrar los mensajes
-router.get('/mostrar-mensajes/:emisor/:receptor', async (req, res) => {
+router.get('/mostrar-mensajes/:userLog/:userConct', async (req, res) => {
 
     try {
 
-       const { emisor, receptor} = req.params;
+       const { userLog, userConct} = req.params;
 
        const mensajes = await req.app.locals.db
        .collection('chats')
        .find({
          $or: [
             {
-                emisor: emisor,
-                receptor: receptor
+                emisor: userLog,
+                receptor: userConct
             },
             {
-                emisor: receptor,
-                receptor: emisor
+                emisor: userConct,
+                receptor: userLog
             }
            ]
        })
