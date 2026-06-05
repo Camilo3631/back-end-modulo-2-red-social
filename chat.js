@@ -3,22 +3,102 @@ import { Router } from "express";
 const router = Router();
 
 //Mostrar los mensaje
-router.get('/', async (req, res) => {
-
+router.get("/", async (req, res) => {
+  try {
     const chats = await req.app.locals.db.collection("chats").find().toArray();
 
     res.json(chats);
-})
+  } catch (error) {
+    res.status(500).json({
+      message: "Errro al obtener todos los chats",
+    });
+  }
+});
 
-//Registrar mensaje
-router.get('/registrar', async (req, res) => {
-    
+//Mostrar los mensajes
+router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
+  try {
+    const { userLog, userConct } = req.params;
 
-    res.json()
+    const mensajes = await req.app.locals.db
+      .collection("chats")
+      .find({
+        $or: [
+          {
+            emisor: userLog,
+            receptor: userConct,
+          },
+          {
+            emisor: userConct,
+            receptor: userLog,
+          },
+        ],
+      })
+      .sort({ fecha: 1 })
+      .toArray();
 
-})
+    res.json(mensajes);
+  } catch (error) {
+    res.status(500).json({
+      menssage: "Error al obtener tods los mensajes",
+    });
+  }
+});
 
+//Registar mensaje
+router.post("/registrar-mensaje", async (req, res) => {
+  try {
+    const nuevoMensaje = {
+      emisor: req.body.emisor,
+      receptor: req.body.receptor,
+      mensaje: req.body.mensaje,
+      fecha: new Date(),
+    };
 
+    const resultado = await req.app.locals.db
+      .collection("chats")
+      .insertOne(nuevoMensaje);
 
+    res.json({
+      message: "Mensaje registrado exitosamente",
+      resultado,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al registrar el mensaje",
+    });
+  }
+});
+
+// Eliminar chat
+router.delete("/eliminar-chat", async (req, res) => {
+  try {
+    const { usuario1, usuario2 } = req.body;
+
+    const eliminarChat = await req.app.locals.db
+      .collection("chats")
+      .deleteMany({
+        $or: [
+          {
+            emisor: usuario1,
+            receptor: usuario2,
+          },
+          {
+            emisor: usuario2,
+            receptor: usuario1,
+          },
+        ],
+      });
+
+    res.json({
+      message: "Chat eliminado exitosamente",
+      eliminarChat,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error al eliminar el chat",
+    });
+  }
+});
 
 export default router;

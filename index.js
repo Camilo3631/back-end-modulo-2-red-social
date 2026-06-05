@@ -20,8 +20,13 @@ app.use(express.json());
 //Rutas de archivos
 app.use('/usuarios', usuarios);
 app.use('/publicaciones', publicaciones);
+<<<<<<< HEAD:index.js
 app.use('/contacto', contacto);
 app.use('/chat', chat);
+=======
+app.use('/contactos', contacto);
+app.use('/chats', chat);
+>>>>>>> feature/endpoints-chat:server.js
 
 
 
