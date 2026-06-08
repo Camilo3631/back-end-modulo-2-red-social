@@ -5,13 +5,14 @@ import { ObjectId } from "mongodb";
 const router = Router();
 
 // Todos los contactos
-router.get('/', async (req, res) => {
-    //const idUsuario = ;
+router.get('/:username', async (req, res) => {
+    const username = req.params.username;
+
     try {
 
         const contactos = await req.app.locals.db
           .collection('contactos')
-          .findOne({_id: idUsuario})
+          .find({$or: [{username_contacto1: username}, {username_contacto2: username}]}).toArray()
 
           res.json(contactos)   
 
