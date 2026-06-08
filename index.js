@@ -22,6 +22,13 @@ app.use("/usuarios", usuarios);
 app.use("/publicaciones", publicaciones);
 app.use("/contacto", contacto);
 app.use("/chat", chat);
+app.use('/usuarios', usuarios);
+app.use('/publicaciones', publicaciones);
+app.use('/contactos', contacto);
+app.use('/chat', chat);
+
+
+
 
 app.listen(process.env.PORT || 3000);
 
@@ -35,4 +42,9 @@ async function connectDB() {
   const client = await MongoClient.connect(url);
   console.log("prueba");
   app.locals.db = client.db("social");
+    // console.log(process.env.db)
+    const url =  process.env.db;
+    const client = await MongoClient.connect(url);
+    app.locals.db = client.db("social")
+
 }

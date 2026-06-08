@@ -2,26 +2,30 @@ import { Router } from "express";
 
 const router = Router();
 
-//Mostrar publicaciones del usuario / Pantalla de perfil
-router.get("/:username", async (req, res) => {
-  const username = req.params.username;
-
-  const publicaciones = await req.app.locals.db
-    .collection("publicaciones")
-    .find(username)
-    .toArray();
-
-  res.send({ data: publicaciones });
-});
 
 //Mostrar todas las publicaciones (home)
 router.get("/todas", async (req, res) => {
+  console.log("DB name:", req.app.locals.db.databaseName);
   const publicaciones = await req.app.locals.db
     .collection("publicaciones")
     .find()
     .toArray();
+    console.log("Publicaciones encontradas:", publicaciones.length);
   res.send({ data: publicaciones });
 });
+
+//Mostrar publicaciones del usuario / Pantalla de perfil
+router.get("/perfil/:username", async (req, res) => {
+  const username = req.params.username;
+
+  const publicaciones = await req.app.locals.db
+    .collection("publicaciones")
+    .find({ username: username })
+    .toArray();
+
+  res.send({ data: publicaciones });
+});
+
 
 //Crear una publicación
 router.post("/crear-publicacion", async (req, res) => {
@@ -30,21 +34,25 @@ router.post("/crear-publicacion", async (req, res) => {
 
   const publicacionCreada = await req.app.locals.db
     .collection("publicaciones")
-    .insertOne({username: nuevaPublicacion.username, texto: nuevaPublicacion.texto});
+    .insertOne({
+      username: nuevaPublicacion.username,
+      texto: nuevaPublicacion.texto,
+    });
 
   res.send({ data: publicacionCreada });
 });
 
 //Editar publicacion
-router.put("/editar-publicacion", async (req, res) => {
-    const usuario = req.body.usuario;
-    const fecha = req.body.fecha;
-    const nuevoTexto = req.body.texto;
+// router.put("/editar-publicacion", async (req, res) => {
+//   const usuario = req.body.usuario;
+//   const fecha = req.body.fecha;
+//   const nuevoTexto = req.body.texto;
 
-  const publicacionEditada =
-    await req.app.locals.db.collection("publicaciones").updateOne({usuario}, {$set: {texto: nuevoTexto, fecha: fecha}})
+//   const publicacionEditada = await req.app.locals.db
+//     .collection("publicaciones")
+//     .updateOne({ usuario }, { $set: { texto: nuevoTexto, fecha: fecha } });
 
-    res.send({data: publicacionEditada})
-});
+//   res.send({ data: publicacionEditada });
+// });
 
 export default router;
