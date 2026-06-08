@@ -55,7 +55,7 @@ router.post("/registrar-mensaje", async (req, res) => {
       emisor: req.body.emisor,
       receptor: req.body.receptor,
       mensaje: req.body.mensaje,
-      fecha: new Date(),
+      fecha: new Date().toLocaleString(),
     };
 
     const resultado = await req.app.locals.db
