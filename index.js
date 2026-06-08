@@ -48,3 +48,5 @@ async function connectDB() {
     app.locals.db = client.db("social")
 
 }
+
+export default app;
