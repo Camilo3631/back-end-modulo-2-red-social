@@ -43,9 +43,7 @@ async function connectDB() {
   console.log("prueba");
   app.locals.db = client.db("social");
     // console.log(process.env.db)
-    const url =  process.env.db;
-    const client = await MongoClient.connect(url);
-    app.locals.db = client.db("social")
+
 
 }
 
