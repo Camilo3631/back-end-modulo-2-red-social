@@ -34,7 +34,7 @@ await connectDB()
 //cambiar db en vercel: mongodb+srv://karlaperezn96_db_user:EnUnLugar...@cluster0.84ay04h.mongodb.net/?appName=Cluster0
 //en .env db = mongodb://admin:admin123@127.0.0.1:27017
 async function connectDB() {
-    console.log(process.env.db)
+    // console.log(process.env.db)
     const url =  process.env.db;
     const client = await MongoClient.connect(url);
     app.locals.db = client.db("social")
