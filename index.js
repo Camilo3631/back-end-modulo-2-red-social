@@ -13,9 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 3000
 
 
-app.use(cors({
-  origin: true
-}));
+app.use(cors());
 
 
 app.use(express.urlencoded({ extended: false }));
@@ -38,7 +36,8 @@ await connectDB();
 //vercel: db = mongodb+srv://general:general1@cluster0.84ay04h.mongodb.net/?appName=Cluster0
 //.env: db = mongodb://admin:admin123@127.0.0.1:27017
 async function connectDB() {
-  const url = process.env.db;
+  // const url = process.env.db;
+  const url = "mongodb+srv://general:general1@cluster0.vefyiih.mongodb.net/?appName=Cluster0"
   const client = await MongoClient.connect(url);
   app.locals.db = client.db("social");
   console.log("mongo connected to", url);
