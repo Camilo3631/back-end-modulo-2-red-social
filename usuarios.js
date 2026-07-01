@@ -81,14 +81,12 @@ router.post("/registrar", async (req, res) => {
 //Iniciar sesion
 router.post("/iniciar-sesion", async (req, res) => {
   const datosUsuario = req.body;
-  console.log(datosUsuario);
   let mensaje;
   let estado;
 
   let usuarioVerificado = await req.app.locals.db
     .collection("usuarios")
     .findOne({ email: datosUsuario.email });
-  console.log(usuarioVerificado);
 
   if (!datosUsuario.email || !datosUsuario.contrasena) {
     mensaje = "Email y contraseña son obligatorios para iniciar sesión.";
@@ -100,7 +98,6 @@ router.post("/iniciar-sesion", async (req, res) => {
           usuarioVerificado.contrasena,
         )
       : false;
-    console.log(passwordMatch);
 
     ({ estado, mensaje } =
       usuarioVerificado && passwordMatch
@@ -111,7 +108,6 @@ router.post("/iniciar-sesion", async (req, res) => {
   res.send({ estado, mensaje, usuarioVerificado });
 });
 
-// Te va mejor un get que un post para esto porque es una consulta no una creación.
 router.post("/buscar", async (req, res) => {
   const buscarUser = await req.app.locals.db
     .collection("usuarios")
@@ -125,31 +121,26 @@ router.post("/buscar", async (req, res) => {
   res.send({ data: buscarUser });
 });
 
-// Modificar cuenta
-router.put("/modificar-cuenta/:id", async (req, res) => {
+router.put("/modificar-cuenta/:email", async (req, res) => {
   try {
-    const userId = req.params.id;
-
-    const { nombre, apellido, usuario, contraseña } = req.body;
-
-    // Validamos un campo
-    if (!nombre && !apellido && !usuario && !contraseña) {
+    const email = req.params.email;
+    const user = req.body;
+    console.log(user, email);
+    if (!user.name && !user.username && !user.contrasena) {
       return res.status(400).json({
         message: "Debes enviar un campo al menos para ser actualizado",
       });
     }
 
-    // Se colocan los datos actualizados
-    const datosActualizados = {};
-
-    if (nombre) datosActualizados.nombre = nombre;
-    if (apellido) datosActualizados.apellido = apellido;
-    if (usuario) datosActualizados.usuario = usuario;
-    if (contraseña) datosActualizados.contraseña = contraseña;
+    const saltRounds = 12;
+    const contrasenaCifrada = await bcrypt.hash(user.contrasena, saltRounds);
 
     const result = await req.app.locals.db
-      .collection("usuario")
-      .updateOne({ _id: new ObjectId(userId) }, { $set: datosActualizados });
+      .collection("usuarios")
+      .updateOne(
+        { email: email },
+        { $set: { username: user.username, contrasena: contrasenaCifrada } },
+      );
 
     res.status(200).json({
       mensaje: "Ha sido actualizada la cuenta correctamente",
