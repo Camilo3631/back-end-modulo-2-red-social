@@ -24,23 +24,16 @@ router.post("/registrar", async (req, res) => {
   let mensaje = "";
   let nuevoUsuario;
 
-  // Campos obligatorios
   if (!username || !email || !contrasena) {
     mensaje = "Todos los campos son obligatorios.";
   } else {
-    // Formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(email)) {
-      mensaje = "Formato de correo inválido.";
-    }
-
-    // Formato username
-    else if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
+    if (!emailRegex.test(email)) mensaje = "Formato de correo inválido.";
+    if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
       mensaje =
         "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.";
     } else {
-      // Buscar existencia
       const usernameExiste = await req.app.locals.db
         .collection("usuarios")
         .findOne({ username });
@@ -49,19 +42,16 @@ router.post("/registrar", async (req, res) => {
         .collection("usuarios")
         .findOne({ email });
 
-      if (usernameExiste && emailExiste) {
+      if (usernameExiste && emailExiste)
         mensaje =
           "Ese nombre de usuario está en uso y ya existe una cuenta con ese correo electrónico.";
-      } else if (usernameExiste) {
-        mensaje = "Ese nombre de usuario está en uso.";
-      } else if (emailExiste) {
+      if (usernameExiste) mensaje = "Ese nombre de usuario está en uso.";
+      if (!usernameExiste && !emailExiste) {
         mensaje = "Ya existe una cuenta con ese correo electrónico.";
       } else {
-        // Cifrar contraseña
         const saltRounds = 12;
         const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
 
-        //Registrar usuario
         nuevoUsuario = await req.app.locals.db
           .collection("usuarios")
           .insertOne({
@@ -69,16 +59,13 @@ router.post("/registrar", async (req, res) => {
             email,
             contrasena: contrasenaCifrada,
           });
-
-        mensaje = "Usuario registrado";
+        mensaje = "Usuario registrado correctamente";
       }
     }
   }
-
   res.send({ data: nuevoUsuario, mensaje });
 });
 
-//Iniciar sesion
 router.post("/iniciar-sesion", async (req, res) => {
   const datosUsuario = req.body;
   let mensaje;
@@ -125,7 +112,6 @@ router.put("/modificar-cuenta/:email", async (req, res) => {
   try {
     const email = req.params.email;
     const user = req.body;
-    console.log(user, email);
     if (!user.name && !user.username && !user.contrasena) {
       return res.status(400).json({
         message: "Debes enviar un campo al menos para ser actualizado",
