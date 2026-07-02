@@ -15,32 +15,26 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/registrar", async (req, res) => {
-  const datosUsuario = req.body;
-
-  const username = datosUsuario.username;
-  const email = datosUsuario.email;
-  const contrasena = datosUsuario.contrasena;
+  const username = req.body.username;
+  const email = req.body.email;
+  const contrasena = req.body.contrasena;
 
   let mensaje = "";
-  let nuevoUsuario;
+  let nuevoUsuario
 
-  // Campos obligatorios
   if (!username || !email || !contrasena) {
     mensaje = "Todos los campos son obligatorios.";
   } else {
-    // Formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(email)) {
       mensaje = "Formato de correo inválido.";
     }
 
-    // Formato username
     else if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
       mensaje =
         "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.";
     } else {
-      // Buscar existencia
       const usernameExiste = await req.app.locals.db
         .collection("usuarios")
         .findOne({ username });
@@ -57,11 +51,9 @@ router.post("/registrar", async (req, res) => {
       } else if (emailExiste) {
         mensaje = "Ya existe una cuenta con ese correo electrónico.";
       } else {
-        // Cifrar contraseña
         const saltRounds = 12;
         const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
 
-        //Registrar usuario
         nuevoUsuario = await req.app.locals.db
           .collection("usuarios")
           .insertOne({
@@ -78,7 +70,6 @@ router.post("/registrar", async (req, res) => {
   res.send({ data: nuevoUsuario, mensaje });
 });
 
-//Iniciar sesion
 router.post("/iniciar-sesion", async (req, res) => {
   const datosUsuario = req.body;
   let mensaje;
@@ -94,9 +85,9 @@ router.post("/iniciar-sesion", async (req, res) => {
   } else {
     const passwordMatch = usuarioVerificado
       ? await bcrypt.compare(
-          datosUsuario.contrasena,
-          usuarioVerificado.contrasena,
-        )
+        datosUsuario.contrasena,
+        usuarioVerificado.contrasena,
+      )
       : false;
 
     ({ estado, mensaje } =
