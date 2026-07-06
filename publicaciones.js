@@ -3,18 +3,14 @@ import { Router } from "express";
 const router = Router();
 
 
-//Mostrar todas las publicaciones (home)
 router.get("/todas", async (req, res) => {
-  console.log("DB name:", req.app.locals.db.databaseName);
   const publicaciones = await req.app.locals.db
     .collection("publicaciones")
     .find()
     .toArray();
-    console.log("Publicaciones encontradas:", publicaciones.length);
   res.send({ data: publicaciones });
 });
 
-//Mostrar publicaciones del usuario / Pantalla de perfil
 router.get("/perfil/:username", async (req, res) => {
   const username = req.params.username;
 
@@ -27,9 +23,7 @@ router.get("/perfil/:username", async (req, res) => {
 });
 
 
-//Crear una publicación
 router.post("/crear-publicacion", async (req, res) => {
-  //El front debe mandar: username y texto (y si quieres la fecha)
   const nuevaPublicacion = req.body;
 
   const publicacionCreada = await req.app.locals.db
@@ -42,17 +36,5 @@ router.post("/crear-publicacion", async (req, res) => {
   res.send({ data: publicacionCreada });
 });
 
-//Editar publicacion
-// router.put("/editar-publicacion", async (req, res) => {
-//   const usuario = req.body.usuario;
-//   const fecha = req.body.fecha;
-//   const nuevoTexto = req.body.texto;
-
-//   const publicacionEditada = await req.app.locals.db
-//     .collection("publicaciones")
-//     .updateOne({ usuario }, { $set: { texto: nuevoTexto, fecha: fecha } });
-
-//   res.send({ data: publicacionEditada });
-// });
 
 export default router;

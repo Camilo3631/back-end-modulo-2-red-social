@@ -2,7 +2,6 @@ import { Router } from "express";
 
 const router = Router();
 
-//Mostrar los mensaje
 router.get("/", async (req, res) => {
   try {
     const chats = await req.app.locals.db.collection("chat").find().toArray();
@@ -15,12 +14,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Mostrar los mensajes
 router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
   try {
     const { userLog, userConct } = req.params;
-
-    console.log(userLog, userConct)
     const mensajes = await req.app.locals.db
       .collection("chat")
       .find({
@@ -36,11 +32,7 @@ router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
         ],
       })
       .toArray()
-      //.sort({fecha: 1});
-
     res.json(mensajes);
-
-
   } catch (error) {
     res.status(500).json({
       menssage: "Error al obtener tods los mensajes",
@@ -48,7 +40,6 @@ router.get("/mostrar-mensajes/:userLog/:userConct", async (req, res) => {
   }
 });
 
-//Registar mensaje
 router.post("/registrar-mensaje", async (req, res) => {
   try {
     const nuevoMensaje = {
@@ -73,7 +64,6 @@ router.post("/registrar-mensaje", async (req, res) => {
   }
 });
 
-// Eliminar chat
 router.delete("/eliminar-chat", async (req, res) => {
   try {
     const { usuario1, usuario2 } = req.body;

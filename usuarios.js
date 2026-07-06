@@ -14,6 +14,15 @@ router.get("/", async (req, res) => {
   res.send(usuarios);
 });
 
+router.post("/avatar", async (req, res) => {
+  const email = req.body.email;
+  const avatar = req.body.avatar;
+  const result = await req.app.locals.db
+    .collection("usuarios")
+    .updateOne({ email: email }, { $set: { avatar: avatar } });
+  res.send({ data: result, mensaje: "ok" });
+});
+
 router.post("/registrar", async (req, res) => {
   const datosUsuario = req.body;
 
@@ -45,10 +54,9 @@ router.post("/registrar", async (req, res) => {
       if (usernameExiste && emailExiste)
         mensaje =
           "Ese nombre de usuario está en uso y ya existe una cuenta con ese correo electrónico.";
-      if (usernameExiste) mensaje = "Ese nombre de usuario está en uso.";
-      if (!usernameExiste && !emailExiste) {
-        mensaje = "Ya existe una cuenta con ese correo electrónico.";
-      } else {
+      else if (usernameExiste) mensaje = "Ese nombre de usuario está en uso.";
+      else if (emailExiste) mensaje = "Ese email ya está en uso.";
+      else {
         const saltRounds = 12;
         const contrasenaCifrada = await bcrypt.hash(contrasena, saltRounds);
 
@@ -58,6 +66,7 @@ router.post("/registrar", async (req, res) => {
             username,
             email,
             contrasena: contrasenaCifrada,
+            avatar: "grey",
           });
         mensaje = "Usuario registrado correctamente";
       }
