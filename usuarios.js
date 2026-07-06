@@ -1,7 +1,5 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-// propiesta
-import { ObjectId } from "mongodb";
 
 const router = Router();
 
@@ -24,11 +22,9 @@ router.post("/avatar", async (req, res) => {
 });
 
 router.post("/registrar", async (req, res) => {
-  const datosUsuario = req.body;
-
-  const username = datosUsuario.username;
-  const email = datosUsuario.email;
-  const contrasena = datosUsuario.contrasena;
+  const username = req.body.username;
+  const email = req.body.email;
+  const contrasena = req.body.contrasena;
 
   let mensaje = "";
   let nuevoUsuario;
@@ -38,8 +34,9 @@ router.post("/registrar", async (req, res) => {
   } else {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(email)) mensaje = "Formato de correo inválido.";
-    if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
+    if (!emailRegex.test(email)) {
+      mensaje = "Formato de correo inválido.";
+    } else if (username.length < 3 || /[^a-zA-Z0-9_]/.test(username)) {
       mensaje =
         "El nombre de usuario debe tener mínimo 3 caracteres y solo puede contener letras, números y guión bajo.";
     } else {
@@ -68,10 +65,12 @@ router.post("/registrar", async (req, res) => {
             contrasena: contrasenaCifrada,
             avatar: "grey",
           });
-        mensaje = "Usuario registrado correctamente";
+
+        mensaje = "Usuario registrado";
       }
     }
   }
+
   res.send({ data: nuevoUsuario, mensaje });
 });
 
@@ -121,6 +120,7 @@ router.put("/modificar-cuenta/:email", async (req, res) => {
   try {
     const email = req.params.email;
     const user = req.body;
+    console.log(user, email);
     if (!user.name && !user.username && !user.contrasena) {
       return res.status(400).json({
         message: "Debes enviar un campo al menos para ser actualizado",
@@ -148,7 +148,6 @@ router.put("/modificar-cuenta/:email", async (req, res) => {
   }
 });
 
-// Eliminar cuenta
 router.post("/eliminar-cuenta/:email", async (req, res) => {
   try {
     const email = req.params.email;
